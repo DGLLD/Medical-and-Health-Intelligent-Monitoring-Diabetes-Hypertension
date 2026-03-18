@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - 医疗风险评估平台</title>
+    <!-- 🔑 引入全局样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- ========== 顶部固定导航栏 ========== -->
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='{{ url_for('index') }}'"> 医疗风险评估平台</div>
+        <div class="nav-buttons">
+            <a href="{{ url_for('login_page') }}" class="nav-btn login-btn">登录</a>
+            <a href="{{ url_for('register_page') }}" class="nav-btn register-btn">注册</a>
+        </div>
+    </nav>
+    
+    <!-- ========== 主内容区 ========== -->
+    <div class="container">
+        <!-- ==== 首屏 Hero 区域 ==== -->
+        <section class="hero-section">
+            <h1 class="hero-title">专业医疗数据风险评估系统</h1>
+            <p class="hero-desc">
+                基于现代医学评估体系与生物统计学方法<br>
+                为您提供血压、血糖、血脂等心血管代谢指标的多维度健康风险综合评估与动态监测趋势分析
+            </p>
+            
+            <!-- 主视觉图占位符 -->
+            <img src="{{ url_for('static', filename='images/main.png') }}" alt="医疗风险评估平台" class="main-visual" style="width:50%;max-width:900px;height:auto;border-radius:8px;display:block;margin:0 auto;">
+            
+            <!-- CTA按钮 -->
+            <a href="{{ url_for('login_page') }}" class="cta-button">立即登录评估 →</a>
+        </section>
+        
+        <!-- ==== 功能展示图片区域（双列布局）==== -->
+        <section class="image-gallery">
+            <!-- 功能图 1：风险评估报告 -->
+            <div class="image-card">
+                <img src="{{ url_for('static', filename='images/1.png') }}" alt="功能图1-风险预测界面" class="card-image">
+                <div class="image-caption">
+                    <strong>智能风险评估</strong><br>
+                    通过先进算法生成个性化风险预测报告
+                </div>
+            </div>
+            
+            <!-- 功能图 2：Plotly可视化图表 -->
+            <div class="image-card">
+                <img src="{{ url_for('static', filename='images/2.png') }}" alt="功能图2-可视化图表" class="card-image">
+                <div class="image-caption">
+                    <strong>指标趋势分析</strong><br>
+                    Plotly可视化呈现血压/血糖/血脂关联趋势
+                </div>
+            </div>
+        </section>
+        
+        <!-- ==== 核心功能介绍区 ==== -->
+        <section class="features-section">
+            <h2 class="features-title">两大核心功能</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-text">医疗风险评估</div>
+                    <div class="feature-subtext">精准模型预测</div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <div class="feature-text">导出图片报告</div>
+                    <div class="feature-subtext">完整结果归档保存</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    
+    <!-- 🔑 引入JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

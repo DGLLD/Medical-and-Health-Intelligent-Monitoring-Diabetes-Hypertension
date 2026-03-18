@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 医疗风险评估平台</title>
+    <!-- 🔑 引入全局样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- ========== 顶部导航栏 ========== -->
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='{{ url_for('index') }}'"> 医疗风险评估平台</div>
+        <a href="{{ url_for('index') }}" class="back-link">← 返回首页</a>
+    </nav>
+    
+    <!-- ========== 注册页面主体 ========== -->
+    <div class="page-main">
+        <div class="register-card">
+            <h1 class="card-title">创建新账号</h1>
+            <p class="card-subtitle">完成注册即可开始使用</p>
+            
+            <!-- 🔴【重点】显示后端返回的错误或成功信息 -->
+            <div id="messageBox" class="message-box"></div>
+            
+            <!-- ========== 注册表单 ========== -->
+            <form id="registerForm" onsubmit="return handleRegister(event)">
+                <!-- 用户名输入框 -->
+                <div class="form-group">
+                    <label class="form-label">设置账号 (3-20个字符)</label>
+                    <input type="text" class="form-input" id="username" placeholder="请输入账号（英文、数字或下划线）" required>
+                </div>
+                
+                <!-- 密码输入框 -->
+                <div class="form-group">
+                    <label class="form-label">设置密码 (3-12位纯数字)</label>
+                    <input type="password" class="form-input" id="password" placeholder="请输入密码（仅数字）" required>
+                </div>
+                
+                <!-- 确认密码输入框 -->
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <input type="password" class="form-input" id="confirmPassword" placeholder="请再次输入密码" required>
+                </div>
+                
+                <!-- 🔴【重点】提交按钮 -->
+                <button type="submit" class="submit-btn" id="submitBtn">立即注册</button>
+            </form>
+            
+            <!-- 登录跳转链接 -->
+            <div class="bottom-links">
+                已有账号？<a href="{{ url_for('login_page') }}">直接登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== JavaScript 客户端逻辑 ========== -->
+    <script>
+        /**
+         * 🔴【重点】处理注册表单提交
+         */
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const messageBox = document.getElementById('messageBox');
+            
+            clearErrors();
+            hideMessage();
+            
+            // === 前端格式验证 ===
+            let isValid = validateInputs(username, password, confirmPassword);
+            if (!isValid) return false;
+            
+            // === 🔴【重点】调用后端注册接口 ===
+            submitBtn.disabled = true;
+            submitBtn.textContent = '注册中...';
+            
+            fetch('{{ url_for("api_register") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    showMessage('success', data.message + ' 将跳转到登录页面...');
+                    setTimeout(() => {
+                        window.location.href = '{{ url_for("login_page") }}';
+                    }, 1000);
+                } else {
+                    showMessage('error', data.message || '注册失败，请重试');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '立即注册';
+                }
+            })
+            .catch(error => {
+                showMessage('error', '网络连接异常，请稍后重试');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '立即注册';
+            });
+            
+            return false;
+        }
+        
+        /**
+         * 【函数】validateInputs - 前端格式验证
+         */
+        function validateInputs(username, password, confirmPassword) {
+            const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
+            const passwordPattern = /^\d{3,12}$/;
+            
+            if (!usernamePattern.test(username)) {
+                showMessage('error', '账号需为 3-20 位字母/数字/下划线组合');
+                return false;
+            }
+            if (!passwordPattern.test(password)) {
+                showMessage('error', '密码需为 3-12 位纯数字');
+                return false;
+            }
+            if (password !== confirmPassword) {
+                showMessage('error', '两次输入的密码不一致');
+                return false;
+            }
+            return true;
+        }
+        
+        function clearErrors() {
+            document.querySelectorAll('.form-input').forEach(el => el.classList.remove('input-error'));
+        }
+        
+        function showMessage(type, text) {
+            const msgBox = document.getElementById('messageBox');
+            msgBox.className = `message-box ${type}-message`;
+            msgBox.textContent = text;
+            msgBox.style.display = 'block';
+        }
+        
+        function hideMessage() {
+            document.getElementById('messageBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

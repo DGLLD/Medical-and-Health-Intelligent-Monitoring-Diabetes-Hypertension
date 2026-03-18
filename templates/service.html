@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康风险预测 · 智能评估</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: url('static/services.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding: 15px;
+            position: relative;
+        }
+
+        /* 暖色调遮罩 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 235, 215, 0.3);
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(255, 245, 235, 0.92);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(180, 120, 60, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(220, 160, 100, 0.2);
+        }
+
+        /* 暖色渐变头部 */
+        .header {
+            background: linear-gradient(145deg, #c97b5d 0%, #d68e6b 50%, #e5a17b 100%);
+            color: white;
+            padding: 20px 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 600;
+            text-shadow: 2px 2px 8px rgba(140, 70, 30, 0.3);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1em;
+            font-weight: 300;
+        }
+
+        .content {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            background: rgba(255, 245, 235, 0.85);
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+
+        /* 左侧输入卡 */
+        .input-section {
+            flex: 1.1;
+            background: rgba(255, 250, 240, 0.98);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(180, 120, 60, 0.1);
+            border: 1px solid rgba(220, 160, 100, 0.2);
+        }
+
+        /* 右侧结果卡 */
+        .result-section {
+            flex: 0.9;
+            background: rgba(255, 250, 240, 0.98);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(180, 120, 60, 0.1);
+            border: 1px solid rgba(220, 160, 100, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            color: #a5673f;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0d5b0;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .section-title i {
+            color: #c97b5d;
+            font-size: 1.2em;
+            background: rgba(220, 160, 100, 0.1);
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        /* 输入组卡片 */
+        .input-group {
+            margin-bottom: 15px;
+            background: #fff9f2;
+            padding: 15px;
+            border-radius: 18px;
+            border: 1px solid #f0d5b0;
+        }
+
+        .input-group h4 {
+            color: #a5673f;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 25px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .badge.required {
+            background: linear-gradient(145deg, #c97b5d, #d68e6b);
+            color: white;
+        }
+
+        .badge.optional {
+            background: linear-gradient(145deg, #e5a17b, #f0b28c);
+            color: white;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-field {
+            flex: 1;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #8b5a3c;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .stat-badge {
+            display: inline-block;
+            background: #f0d5b0;
+            padding: 2px 6px;
+            border-radius: 16px;
+            font-size: 0.7em;
+            color: #8b5a3c;
+            margin-left: 4px;
+        }
+
+        .range-hint {
+            font-size: 0.7em;
+            color: #b37b5a;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #f0d5b0;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #c97b5d;
+            box-shadow: 0 0 0 3px rgba(201, 123, 93, 0.1);
+        }
+
+        /* 输入警告样式 */
+        .input-warning {
+            color: #d9534f;
+            font-size: 0.75em;
+            margin-top: 4px;
+            display: none;
+            padding-left: 5px;
+        }
+
+        .input-warning.show {
+            display: block;
+        }
+
+        input.invalid,
+        select.invalid {
+            border-color: #d9534f;
+            background: #fff5f5;
+        }
+
+        /* 预测按钮 */
+        .btn-predict {
+            background: linear-gradient(145deg, #c97b5d, #d68e6b, #e5a17b);
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -5px rgba(201, 123, 93, 0.3);
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(201, 123, 93, 0.4);
+        }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group .btn-predict {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(145deg, #b3a18d, #c5b4a0);
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -5px rgba(140, 120, 100, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(140, 120, 100, 0.4);
+        }
+
+        /* 结果卡片 */
+        .result-card {
+            background: #fff9f2;
+            padding: 18px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            border: 1px solid #f0d5b0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, #c97b5d, #e5a17b);
+            border-radius: 5px 0 0 5px;
+        }
+
+        .result-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            color: #a5673f;
+            font-weight: 600;
+            padding-left: 5px;
+        }
+
+        .risk-badge {
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .high-risk {
+            background: linear-gradient(145deg, #ffb3b3, #ff8a8a);
+            color: #b33c3c;
+        }
+
+        .low-risk {
+            background: linear-gradient(145deg, #b8e0c0, #9ad0aa);
+            color: #1d5a3e;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #f0d5b0;
+            border-radius: 8px;
+            margin: 10px 0 8px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c97b5d, #e5a17b);
+            transition: width 0.8s ease;
+            border-radius: 8px;
+        }
+
+        .confidence-text {
+            font-size: 0.9em;
+            color: #8b5a3c;
+            margin: 5px 0 10px;
+            font-weight: 500;
+        }
+
+        .model-info {
+            background: #f9ede1;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-size: 0.85em;
+            color: #8b5a3c;
+            margin: 10px 0;
+            border-left: 3px solid #c97b5d;
+        }
+
+        .explanation {
+            font-size: 0.8em;
+            color: #a5673f;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #f0d5b0;
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #8b5a3c;
+            font-size: 1em;
+            background: #fff9f2;
+            border-radius: 20px;
+            border: 1px solid #f0d5b0;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 2px solid #f0d5b0;
+            border-top-color: #c97b5d;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 提示卡片 */
+        .note {
+            background: #f9ede1;
+            border: 1px solid #e5c9a8;
+            color: #8b5a3c;
+            padding: 12px 15px;
+            border-radius: 16px;
+            margin-top: 10px;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note i {
+            font-size: 1.2em;
+            color: #c97b5d;
+        }
+
+        /* 默认提示 */
+        #default-note {
+            background: #f9ede1;
+            border-color: #e5c9a8;
+            color: #8b5a3c;
+        }
+
+        /* 快捷预设按钮 */
+        .quick-preset {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            background: #f9ede1;
+            border: 1px solid #e5c9a8;
+            color: #8b5a3c;
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 70px;
+        }
+
+        .preset-btn:hover {
+            background: #f0d5b0;
+            border-color: #c97b5d;
+        }
+
+        /* 数据完整度指示器 */
+        .completeness-meter {
+            height: 4px;
+            background: #f0d5b0;
+            border-radius: 2px;
+            margin: 5px 0 10px;
+            overflow: hidden;
+        }
+
+        .completeness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f0b28c, #c97b5d);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        /* 健康小贴士 */
+        .health-tip {
+            background: rgba(201, 123, 93, 0.05);
+            border: 1px dashed #e5c9a8;
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 0.8em;
+            color: #8b5a3c;
+            margin-top: 10px;
+            text-align: center;
+            animation: fadeTip 8s infinite;
+        }
+
+        @keyframes fadeTip {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            95% {
+                opacity: 0.7;
+            }
+        }
+
+        /* 性别选择行 */
+        .gender-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            background: #f9ede1;
+            border: 1.5px solid #f0d5b0;
+            border-radius: 30px;
+            padding: 10px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #8b5a3c;
+            font-weight: 500;
+        }
+
+        .gender-btn.selected {
+            background: #e5c9a8;
+            border-color: #c97b5d;
+            color: #5a3e2b;
+            box-shadow: 0 2px 8px rgba(201, 123, 93, 0.2);
+        }
+
+        .gender-btn input[type="radio"] {
+            display: none;
+        }
+
+        /* 怀孕次数容器 - 根据性别显示/隐藏 */
+        .pregnancy-container {
+            transition: all 0.3s;
+        }
+
+        .pregnancy-container.hidden {
+            display: none;
+        }
+
+        /* 报告生成按钮 */
+        .generate-report-btn {
+            background: #fff9f2;
+            border: 1px solid #e5c9a8;
+            color: #8b5a3c;
+            padding: 10px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .generate-report-btn:hover {
+            background: #f0d5b0;
+            border-color: #c97b5d;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #8b5a3c;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .report-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            background: #c97b5d;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #f0d5b0;
+            color: #8b5a3c;
+        }
+    </style>
+    <!-- 🔴【方案一添加点】输入限制函数 -->
+    <script>
+        // 限制输入只能为数字和特定字符
+        function restrictInput(event) {
+            var key = event.keyCode || event.which;
+            var keyChar = String.fromCharCode(key);
+            
+            // 允许：数字、退格、删除、制表符、回车、箭头键
+            if (key == 8 || key == 9 || key == 13 || key == 46 || (key >= 37 && key <= 40)) {
+                return true;
+            }
+            
+            // 允许小数点（只在BMI字段）
+            if (keyChar === '.' && event.target.id === 'bmi') {
+                // 防止多个小数点
+                if (event.target.value.indexOf('.') === -1) {
+                    return true;
+                }
+                return false;
+            }
+            
+            // 只允许数字
+            return /[0-9]/.test(keyChar);
+        }
+
+        // 失去焦点时验证和格式化
+        function validateInput(input) {
+            if (input.value === '' || input.value === null) {
+                return;
+            }
+            
+            // 去除前后空格
+            input.value = input.value.trim();
+            
+            // 如果是BMI字段，保留一位小数
+            if (input.id === 'bmi' && input.value) {
+                let num = parseFloat(input.value);
+                if (!isNaN(num)) {
+                    input.value = num.toFixed(1);
+                }
+            } else if (input.value) {
+                // 其他字段转为整数
+                let num = parseInt(input.value);
+                if (!isNaN(num)) {
+                    input.value = num;
+                } else {
+                    input.value = '';
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 智能风险预测</h1>
+            <p>温柔守护您的健康 · 基于 AI 的精准评估</p>
+        </div>
+        <div class="content">
+            <!-- 左侧输入区 -->
+            <div class="input-section">
+                <div class="section-title">
+                    <i>📝</i> 健康数据录入
+                </div>
+                <!-- 快捷场景预设 -->
+                <div class="quick-preset">
+                    <button class="preset-btn" onclick="setPreset('health')">🌱 健康人群</button>
+                    <button class="preset-btn" onclick="setPreset('ht-risk')">❤️ 高血压风险</button>
+                    <button class="preset-btn" onclick="setPreset('dm-risk')">🩸 糖尿病风险</button>
+                    <button class="preset-btn" onclick="setPreset('elder')">👴 老年人群</button>
+                    <button class="preset-btn" onclick="clearAll()">🗑️ 清空</button>
+                </div>
+                <!-- 数据完整度指示器 -->
+                <div class="completeness-meter">
+                    <div class="completeness-fill" id="completeness" style="width: 0%"></div>
+                </div>
+                <!-- 性别选择 -->
+                <div class="gender-row">
+                    <div class="gender-btn" id="gender-male-btn" onclick="selectGender('male')">
+                        <input type="radio" name="gender" id="male" value="male" checked>
+                        <span>👨 男性</span>
+                    </div>
+                    <div class="gender-btn" id="gender-female-btn" onclick="selectGender('female')">
+                        <input type="radio" name="gender" id="female" value="female">
+                        <span>👩 女性</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <h4>
+                        <span>🌱 基础指标</span>
+                        <span class="badge required">必填</span>
+                    </h4>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>年龄 <span class="stat-badge">岁</span><span class="range-hint">(0-120)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="age" placeholder="如 45" value="45"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateAge(); updateCompleteness()">
+                            <div class="input-warning" id="age-warning">年龄应在 0-120 岁之间</div>
+                        </div>
+                        <div class="input-field">
+                            <label>收缩压 <span class="stat-badge">mmHg</span><span
+                                    class="range-hint">(70-200)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="sbp" placeholder="如 130" value="130"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateBP(); updateCompleteness()">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>舒张压 <span class="stat-badge">mmHg</span><span
+                                    class="range-hint">(40-130)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="dbp" placeholder="如 85" value="85"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateBP(); updateCompleteness()">
+                            <div class="input-warning" id="bp-warning">收缩压应大于舒张压，且收缩压 70-200，舒张压 40-130</div>
+                        </div>
+                        <div class="input-field">
+                            <label>血糖值 <span class="stat-badge">mg/dL</span><span
+                                    class="range-hint">(50-500)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="glucose" placeholder="如 140" value="140"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateGlucose(); updateCompleteness()">
+                            <div class="input-warning" id="glucose-warning">血糖值应在 50-500 之间</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <h4>
+                        <span>🍃 进阶指标</span>
+                        <span class="badge optional">选填</span>
+                    </h4>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>BMI 指数 <span class="stat-badge">kg/m²</span><span
+                                    class="range-hint">(10-50)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="bmi" placeholder="如 26.5" value="26.5" step="0.1"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g, '$1'); validateBMI(); updateCompleteness()">
+                            <div class="input-warning" id="bmi-warning">BMI 应在 10-50 之间</div>
+                        </div>
+                        <div class="input-field">
+                            <label>糖化血红蛋白 <span class="range-hint">(4-15)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="hba1c" placeholder="如 6.2" value="6.2" step="0.1"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g, '$1'); validateHba1c(); updateCompleteness()">
+                            <div class="input-warning" id="hba1c-warning">HbA1c 应在 4-15 之间</div>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>胰岛素水平 <span class="range-hint">(0-500)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="insulin" placeholder="如 100" value="100"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateInsulin(); updateCompleteness()">
+                            <div class="input-warning" id="insulin-warning">胰岛素应在 0-500 之间</div>
+                        </div>
+                        <div class="input-field">
+                            <label>胆固醇等级</label>
+                            <select id="cholesterol" onchange="updateCompleteness()">
+                                <option value="">请选择</option>
+                                <option value="1" selected>1 - 正常</option>
+                                <option value="2">2 - 偏高</option>
+                                <option value="3">3 - 很高</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>吸烟史</label>
+                            <select id="smoking" onchange="updateCompleteness()">
+                                <option value="0" selected>0 - 从不吸烟</option>
+                                <option value="1">1 - No Info</option>
+                                <option value="2">2 - 当前吸烟</option>
+                                <option value="3">3 - 曾经吸烟</option>
+                            </select>
+                        </div>
+                        <div class="input-field">
+                            <label>高血压史</label>
+                            <select id="hypertension" onchange="updateCompleteness()">
+                                <option value="0" selected>0 - 无</option>
+                                <option value="1">1 - 有</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>体重 <span class="stat-badge">kg</span><span class="range-hint">(20-200)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="weight" placeholder="如 70" value="70" step="0.1"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateWeight(); updateCompleteness()">
+                            <div class="input-warning" id="weight-warning">体重应在 20-200kg 之间</div>
+                        </div>
+                        <div class="input-field">
+                            <label>身高 <span class="stat-badge">cm</span><span
+                                    class="range-hint">(100-250)</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="height" placeholder="如 170" value="170"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); validateHeight(); updateCompleteness()">
+                            <div class="input-warning" id="height-warning">身高应在 100-250cm 之间</div>
+                        </div>
+                    </div>
+                    <!-- 怀孕次数 - 根据性别动态显示 -->
+                    <div class="input-row" id="pregnancy-row">
+                        <div class="input-field">
+                            <label>怀孕次数 <span class="stat-badge" id="pregnancy-badge">女性填写</span></label>
+                            <!-- 🔴【方案一修改】添加 onkeypress, onpaste, onblur 属性 -->
+                            <input type="number" id="pregnancies" placeholder="仅女性填写" value="0"
+                                onkeypress="return restrictInput(event)"
+                                onpaste="return false"
+                                onblur="validateInput(this)"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,''); updateCompleteness()">
+                        </div>
+                        <div class="input-field">
+                            <!-- 占位，保持布局平衡 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-predict" onclick="predict()">🔍 开始健康分析</button>
+                    <button class="btn-secondary" onclick="generateReport()" id="generate-report"
+                        style="display: none;">📄 生成报告</button>
+                </div>
+                <!-- 健康小贴士轮播 -->
+                <div class="health-tip" id="health-tip">
+                    💗 定期监测血压血糖，健康生活每一天
+                </div>
+            </div>
+            <!-- 右侧结果区 -->
+            <div class="result-section">
+                <div class="section-title">
+                    <i>📊</i> 评估报告
+                </div>
+                <!-- 高血压结果 -->
+                <div class="result-card" id="hypertension-card" style="display: none;">
+                    <div class="result-title">
+                        <span>❤️ 高血压风险评估</span>
+                        <span class="risk-badge" id="ht-risk-badge"></span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="ht-confidence-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="confidence-text" id="ht-confidence"></div>
+                    <div class="model-info" id="ht-explanation"></div>
+                </div>
+                <!-- 糖尿病结果 -->
+                <div class="result-card" id="diabetes-card" style="display: none;">
+                    <div class="result-title">
+                        <span>🩸 糖尿病风险评估</span>
+                        <span class="risk-badge" id="db-risk-badge"></span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="db-confidence-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="confidence-text" id="db-confidence"></div>
+                    <div class="model-info" id="db-model"></div>
+                    <div class="explanation" id="db-explanation"></div>
+                </div>
+                <!-- 置信度可视化图表 -->
+                <div class="result-card" id="confidence-chart-card" style="display: none;">
+                    <div class="result-title">
+                        <span>📈 风险评估置信度</span>
+                    </div>
+                    <div id="confidence-chart" style="width: 100%; height: 220px;"></div>
+                    <div class="explanation" style="margin-top: 8px; font-size: 0.75em;">
+                        💡 置信度越高，模型对该风险评估的把握越大
+                    </div>
+                </div>
+                <!-- 加载动画 -->
+                <div class="loading" id="loading" style="display: none;">AI 模型正在分析</div>
+                <!-- 提示信息 -->
+                <div class="note" id="note" style="display: none;">
+                    <i>💗</i>
+                    <span id="note-text"></span>
+                </div>
+                <!-- 默认提示 -->
+                <div class="note" id="default-note">
+                    <i>🌿</i>
+                    <span>填写左侧数据，点击「开始健康分析」获取报告</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 报告图片模态框 -->
+    <div class="modal" id="report-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">✕</span>
+            <div id="report-content"></div>
+            <div class="report-actions">
+                <button class="btn-save" onclick="saveReport()">保存图片</button>
+                <button class="btn-cancel" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        let currentResult = null;
+        let currentHealthData = null;
+        // 健康小贴士轮播
+        const tips = [
+            '💗 定期监测血压血糖，健康生活每一天',
+            '❤️ 高血压患者建议低盐饮食，每日食盐<5g',
+            '🩸 糖尿病患者建议控制糖分摄入，定期运动',
+            '🌿 BMI 在 18.5-24 之间为正常范围',
+            '🏃 每周至少 150 分钟中等强度运动',
+            '🥗 多吃蔬菜水果，保持均衡饮食',
+            '❤️ 收缩压正常范围：90-120mmHg',
+            '❤️ 舒张压正常范围：60-80mmHg'
+        ];
+        let tipIndex = 0;
+        setInterval(() => {
+            tipIndex = (tipIndex + 1) % tips.length;
+            document.getElementById('health-tip').textContent = tips[tipIndex];
+        }, 5000);
+        // 性别选择
+        function selectGender(gender) {
+            document.getElementById('gender-male-btn').classList.remove('selected');
+            document.getElementById('gender-female-btn').classList.remove('selected');
+            const pregnancyRow = document.getElementById('pregnancy-row');
+            const pregnancyBadge = document.getElementById('pregnancy-badge');
+            if (gender === 'male') {
+                document.getElementById('male').checked = true;
+                document.getElementById('gender-male-btn').classList.add('selected');
+                pregnancyRow.style.display = 'none';
+                document.getElementById('pregnancies').value = 0;
+            } else {
+                document.getElementById('female').checked = true;
+                document.getElementById('gender-female-btn').classList.add('selected');
+                pregnancyRow.style.display = 'flex';
+                pregnancyBadge.textContent = '女性填写';
+            }
+            updateCompleteness();
+        }
+        // 输入验证函数
+        function validateAge() {
+            const age = document.getElementById('age').value;
+            const warning = document.getElementById('age-warning');
+            const input = document.getElementById('age');
+            if (age && (age < 0 || age > 120)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateBP() {
+            const sbp = document.getElementById('sbp').value;
+            const dbp = document.getElementById('dbp').value;
+            const warning = document.getElementById('bp-warning');
+            const sbpInput = document.getElementById('sbp');
+            const dbpInput = document.getElementById('dbp');
+            let sbpValid = !sbp || (sbp >= 70 && sbp <= 200);
+            let dbpValid = !dbp || (dbp >= 40 && dbp <= 130);
+            let bpRelationValid = !sbp || !dbp || Number(sbp) > Number(dbp);
+            if ((sbp && !sbpValid) || (dbp && !dbpValid) || !bpRelationValid) {
+                warning.classList.add('show');
+                if (sbp && !sbpValid) sbpInput.classList.add('invalid');
+                if (dbp && !dbpValid) dbpInput.classList.add('invalid');
+                if (!bpRelationValid) {
+                    sbpInput.classList.add('invalid');
+                    dbpInput.classList.add('invalid');
+                }
+                return false;
+            } else {
+                warning.classList.remove('show');
+                sbpInput.classList.remove('invalid');
+                dbpInput.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateGlucose() {
+            const glucose = document.getElementById('glucose').value;
+            const warning = document.getElementById('glucose-warning');
+            const input = document.getElementById('glucose');
+            if (glucose && (glucose < 50 || glucose > 500)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateBMI() {
+            const bmi = document.getElementById('bmi').value;
+            const warning = document.getElementById('bmi-warning');
+            const input = document.getElementById('bmi');
+            if (bmi && (bmi < 10 || bmi > 50)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateHba1c() {
+            const hba1c = document.getElementById('hba1c').value;
+            const warning = document.getElementById('hba1c-warning');
+            const input = document.getElementById('hba1c');
+            if (hba1c && (hba1c < 4 || hba1c > 15)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateInsulin() {
+            const insulin = document.getElementById('insulin').value;
+            const warning = document.getElementById('insulin-warning');
+            const input = document.getElementById('insulin');
+            if (insulin && (insulin < 0 || insulin > 500)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateWeight() {
+            const weight = document.getElementById('weight').value;
+            const warning = document.getElementById('weight-warning');
+            const input = document.getElementById('weight');
+            if (weight && (weight < 20 || weight > 200)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        function validateHeight() {
+            const height = document.getElementById('height').value;
+            const warning = document.getElementById('height-warning');
+            const input = document.getElementById('height');
+            if (height && (height < 100 || height > 250)) {
+                warning.classList.add('show');
+                input.classList.add('invalid');
+                return false;
+            } else {
+                warning.classList.remove('show');
+                input.classList.remove('invalid');
+                return true;
+            }
+        }
+        // 更新数据完整度
+        function updateCompleteness() {
+            const fields = [
+                'age', 'sbp', 'dbp', 'glucose', 'bmi',
+                'hba1c', 'insulin', 'cholesterol',
+                'smoking', 'hypertension', 'weight', 'height'
+            ];
+            if (document.getElementById('female').checked) {
+                fields.push('pregnancies');
+            }
+            let filled = 0;
+            fields.forEach(id => {
+                let val = document.getElementById(id).value;
+                if (val && val !== '' && val !== '0') {
+                    filled++;
+                }
+            });
+            let percent = (filled / fields.length) * 100;
+            document.getElementById('completeness').style.width = percent + '%';
+        }
+        // 快捷预设
+        function setPreset(type) {
+            document.querySelectorAll('.input-warning').forEach(w => w.classList.remove('show'));
+            document.querySelectorAll('input').forEach(i => i.classList.remove('invalid'));
+            if (type === 'health') {
+                selectGender('male');
+                document.getElementById('age').value = 30;
+                document.getElementById('sbp').value = 110;
+                document.getElementById('dbp').value = 70;
+                document.getElementById('glucose').value = 85;
+                document.getElementById('bmi').value = 22;
+                document.getElementById('hba1c').value = 5.2;
+                document.getElementById('insulin').value = 60;
+                document.getElementById('cholesterol').value = '1';
+                document.getElementById('pregnancies').value = 0;
+                document.getElementById('smoking').value = '0';
+                document.getElementById('hypertension').value = '0';
+                document.getElementById('weight').value = 60;
+                document.getElementById('height').value = 170;
+            } else if (type === 'ht-risk') {
+                selectGender('male');
+                document.getElementById('age').value = 68;
+                document.getElementById('sbp').value = 160;
+                document.getElementById('dbp').value = 100;
+                document.getElementById('glucose').value = 140;
+                document.getElementById('bmi').value = 28;
+                document.getElementById('hba1c').value = 6.2;
+                document.getElementById('insulin').value = 120;
+                document.getElementById('cholesterol').value = '3';
+                document.getElementById('pregnancies').value = 0;
+                document.getElementById('smoking').value = '2';
+                document.getElementById('hypertension').value = '1';
+                document.getElementById('weight').value = 75;
+                document.getElementById('height').value = 165;
+            } else if (type === 'dm-risk') {
+                selectGender('female');
+                document.getElementById('age').value = 55;
+                document.getElementById('sbp').value = 135;
+                document.getElementById('dbp').value = 85;
+                document.getElementById('glucose').value = 180;
+                document.getElementById('bmi').value = 32;
+                document.getElementById('hba1c').value = 8.5;
+                document.getElementById('insulin').value = 200;
+                document.getElementById('cholesterol').value = '2';
+                document.getElementById('pregnancies').value = 3;
+                document.getElementById('smoking').value = '1';
+                document.getElementById('hypertension').value = '0';
+                document.getElementById('weight').value = 85;
+                document.getElementById('height').value = 165;
+            } else if (type === 'elder') {
+                selectGender('female');
+                document.getElementById('age').value = 75;
+                document.getElementById('sbp').value = 145;
+                document.getElementById('dbp').value = 80;
+                document.getElementById('glucose').value = 130;
+                document.getElementById('bmi').value = 24;
+                document.getElementById('hba1c').value = 6.8;
+                document.getElementById('insulin').value = 90;
+                document.getElementById('cholesterol').value = '2';
+                document.getElementById('pregnancies').value = 4;
+                document.getElementById('smoking').value = '0';
+                document.getElementById('hypertension').value = '1';
+                document.getElementById('weight').value = 65;
+                document.getElementById('height').value = 160;
+            }
+            updateCompleteness();
+        }
+        function clearAll() {
+            document.getElementById('age').value = '';
+            document.getElementById('sbp').value = '';
+            document.getElementById('dbp').value = '';
+            document.getElementById('glucose').value = '';
+            document.getElementById('bmi').value = '';
+            document.getElementById('hba1c').value = '';
+            document.getElementById('insulin').value = '';
+            document.getElementById('cholesterol').value = '';
+            document.getElementById('pregnancies').value = '';
+            document.getElementById('smoking').value = '0';
+            document.getElementById('hypertension').value = '0';
+            document.getElementById('weight').value = '';
+            document.getElementById('height').value = '';
+            document.querySelectorAll('.input-warning').forEach(w => w.classList.remove('show'));
+            document.querySelectorAll('input').forEach(i => i.classList.remove('invalid'));
+            updateCompleteness();
+        }
+        
+        // 🔴【方案二修改】predict函数开头添加二次清洗
+        function predict() {
+            // 提交前二次清洗
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                if (input.value) {
+                    if (input.id === 'bmi' || input.id === 'hba1c') {
+                        // BMI和糖化血红蛋白字段：只保留数字和小数点
+                        input.value = input.value.replace(/[^0-9.]/g, '');
+                        // 确保只有一个小数点
+                        let parts = input.value.split('.');
+                        if (parts.length > 2) {
+                            input.value = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        // 限制小数位数为1位
+                        if (input.value.includes('.')) {
+                            let [intPart, decPart] = input.value.split('.');
+                            input.value = intPart + '.' + decPart.substring(0, 1);
+                        }
+                    } else {
+                        // 其他字段：只保留数字
+                        input.value = input.value.replace(/[^0-9]/g, '');
+                    }
+                }
+            });
+
+            const invalidInputs = document.querySelectorAll('input.invalid');
+            if (invalidInputs.length > 0) {
+                alert('请先修正输入数据中的错误');
+                return;
+            }
+            document.getElementById('default-note').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('hypertension-card').style.display = 'none';
+            document.getElementById('diabetes-card').style.display = 'none';
+            document.getElementById('confidence-chart-card').style.display = 'none';
+            document.getElementById('note').style.display = 'none';
+            document.getElementById('generate-report').style.display = 'none';
+            let health_data = {
+                'age': parseFloat(document.getElementById('age').value) || null,
+                'ap_hi': parseFloat(document.getElementById('sbp').value) || null,
+                'ap_lo': parseFloat(document.getElementById('dbp').value) || null,
+                'glucose': parseFloat(document.getElementById('glucose').value) || null,
+                'bmi': parseFloat(document.getElementById('bmi').value) || null,
+                'age_days': document.getElementById('age').value ? parseFloat(document.getElementById('age').value) * 365 : null
+            };
+            Object.keys(health_data).forEach(key => {
+                if (health_data[key] === null) {
+                    delete health_data[key];
+                }
+            });
+            let fields = {
+                'hba1c': 'hba1c',
+                'insulin': 'insulin',
+                'cholesterol': 'cholesterol',
+                'smoking': 'smoking',
+                'hypertension': 'hypertension',
+                'weight': 'weight',
+                'height': 'height'
+            };
+            if (document.getElementById('female').checked) {
+                fields['pregnancies'] = 'pregnancies';
+            }
+            for (let [id, key] of Object.entries(fields)) {
+                let value = document.getElementById(id).value;
+                if (value && value !== '') {
+                    health_data[key] = parseFloat(value);
+                }
+            }
+            currentHealthData = health_data;
+            fetch('/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 'health_data': health_data })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    if (data.success) {
+                        currentResult = data.data;
+                        displayResults(data.data);
+                        document.getElementById('generate-report').style.display = 'block';
+                    } else {
+                        alert('预测失败：' + data.error);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    alert('网络错误：' + error);
+                });
+        }
+        function displayResults(result) {
+            let note = '';
+
+            // 显示高血压结果
+            if (result.hypertension) {
+                let ht = result.hypertension;
+                document.getElementById('hypertension-card').style.display = 'block';
+
+                let badge = document.getElementById('ht-risk-badge');
+                badge.textContent = ht.risk;
+                badge.className = 'risk-badge ' + (ht.risk === '高风险' ? 'high-risk' : 'low-risk');
+
+                let confPercent = (ht.confidence * 100).toFixed(1);
+                document.getElementById('ht-confidence').textContent = `置信度 ${confPercent}%`;
+                document.getElementById('ht-confidence-bar').style.width = confPercent + '%';
+                document.getElementById('ht-explanation').textContent = result.explanation.hypertension;
+
+                if (ht.risk === '高风险') note += '❤️ 高血压风险较高；';
+            }
+
+            // 显示糖尿病结果
+            if (result.diabetes) {
+                let db = result.diabetes;
+                document.getElementById('diabetes-card').style.display = 'block';
+
+                let badge = document.getElementById('db-risk-badge');
+                badge.textContent = db.risk;
+                badge.className = 'risk-badge ' + (db.risk === '高风险' ? 'high-risk' : 'low-risk');
+
+                let confPercent = (db.confidence * 100).toFixed(1);
+                document.getElementById('db-confidence').textContent = `置信度 ${confPercent}%`;
+                document.getElementById('db-confidence-bar').style.width = confPercent + '%';
+                document.getElementById('db-model').textContent = '📊 使用模型：' + (db.model || '未知');
+                document.getElementById('db-explanation').textContent = result.explanation.diabetes;
+
+                if (db.risk === '高风险') note += '🩸 糖尿病风险较高；';
+            }
+
+            // 渲染置信度图表
+            if (result.hypertension?.confidence !== undefined && result.diabetes?.confidence !== undefined) {
+                document.getElementById('confidence-chart-card').style.display = 'block';
+                renderConfidenceChart(
+                    result.hypertension.confidence,
+                    result.diabetes.confidence
+                );
+            } else {
+                document.getElementById('confidence-chart-card').style.display = 'none';
+            }
+
+            if (note) {
+                document.getElementById('note').style.display = 'flex';
+                document.getElementById('note-text').textContent = note + '建议咨询医生';
+            }
+
+
+            if (!note && (!result.hypertension || !result.diabetes)) {
+                document.getElementById('note').style.display = 'flex';
+                document.getElementById('note-text').textContent = '📌 部分数据不足，请填完必填项后，再重新点击开始健康分析按钮';
+            }
+        }
+        // 渲染置信度图表函数
+        function renderConfidenceChart(htConfidence, dbConfidence) {
+            const data = [{
+                type: 'bar',
+                x: [htConfidence * 100, dbConfidence * 100],
+                y: ['❤️ 高血压', '🩸 糖尿病'],
+                orientation: 'h',
+                marker: {
+                    color: [
+                        htConfidence >= 0.7 ? '#c97b5d' : '#e5a17b',
+                        dbConfidence >= 0.7 ? '#c97b5d' : '#e5a17b'
+                    ],
+                    line: { color: '#f0d5b0', width: 1 },
+                    opacity: 0.9
+                },
+                text: [`${(htConfidence * 100).toFixed(1)}%`, `${(dbConfidence * 100).toFixed(1)}%`],
+                textposition: 'outside',
+                textfont: { color: '#8b5a3c', size: 11, weight: 'bold' },
+                hovertemplate: '%{y}<br>置信度：%{x:.1f}%<extra></extra>'
+            }];
+            const layout = {
+                margin: { t: 10, r: 40, l: 80, b: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: {
+                    title: { text: '置信度 (%)', font: { color: '#8b5a3c', size: 10 } },
+                    range: [0, 105],
+                    tickfont: { color: '#a5673f', size: 9 },
+                    gridcolor: '#f0d5b0',
+                    zeroline: false
+                },
+                yaxis: {
+                    tickfont: { color: '#8b5a3c', size: 11, weight: '500' },
+                    automargin: true
+                },
+                showlegend: false,
+                height: 220,
+                autosize: true
+            };
+            const config = { responsive: true, displayModeBar: false };
+            Plotly.newPlot('confidence-chart', data, layout, config);
+        }
+        function generateReport() {
+            if (!currentResult || !currentHealthData) {
+                alert('请先进行健康分析');
+                return;
+            }
+            const date = new Date();
+            const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+            let inputDataHTML = '';
+            const dataMap = {
+                'age': '年龄',
+                'ap_hi': '收缩压',
+                'ap_lo': '舒张压',
+                'glucose': '血糖值',
+                'bmi': 'BMI 指数',
+                'hba1c': '糖化血红蛋白',
+                'insulin': '胰岛素水平',
+                'cholesterol': '胆固醇等级',
+                'smoking': '吸烟史',
+                'hypertension': '高血压史',
+                'weight': '体重',
+                'height': '身高',
+                'pregnancies': '怀孕次数'
+            };
+            const cholesterolMap = {
+                '1': '1 - 正常',
+                '2': '2 - 偏高',
+                '3': '3 - 很高'
+            };
+            const smokingMap = {
+                '0': '0 - 从不吸烟',
+                '1': '1 - No Info',
+                '2': '2 - 当前吸烟',
+                '3': '3 - 曾经吸烟'
+            };
+            const hypertensionMap = {
+                '0': '0 - 无',
+                '1': '1 - 有'
+            };
+            for (let [key, label] of Object.entries(dataMap)) {
+                if (currentHealthData[key] !== undefined) {
+                    let value = currentHealthData[key];
+                    if (key === 'cholesterol' && cholesterolMap[value]) {
+                        value = cholesterolMap[value];
+                    } else if (key === 'smoking' && smokingMap[value]) {
+                        value = smokingMap[value];
+                    } else if (key === 'hypertension' && hypertensionMap[value]) {
+                        value = hypertensionMap[value];
+                    }
+                    inputDataHTML += `<div>${label}: ${value}</div>`;
+                }
+            }
+            // 🔹 计算置信度数据（用于报告内图表）
+            const htConf = currentResult.hypertension?.confidence || 0;
+            const dbConf = currentResult.diabetes?.confidence || 0;
+            const htPercent = (htConf * 100).toFixed(1);
+            const dbPercent = (dbConf * 100).toFixed(1);
+            const htColor = htConf >= 0.7 ? '#c97b5d' : '#e5a17b';
+            const dbColor = dbConf >= 0.7 ? '#c97b5d' : '#e5a17b';
+
+            const reportHTML = `
+<div style="background: white; padding: 25px; border-radius: 20px; max-width: 400px;">
+<div style="text-align: center; margin-bottom: 20px;">
+<h2 style="color: #c97b5d; margin-bottom: 5px;">🏥 智能风险预测报告</h2>
+<div style="color: #b37b5a; font-size: 0.9em;">${dateStr}</div>
+</div>
+<div style="margin-bottom: 15px; padding: 15px; background: #f9ede1; border-radius: 15px;">
+<div style="font-weight: 600; color: #a5673f; margin-bottom: 10px;">📊 评估结果</div>
+<div style="margin-bottom: 10px;">
+<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+<span>❤️ 高血压风险</span>
+<span style="font-weight: 600; color: ${currentResult.hypertension?.risk === '高风险' ? '#d9534f' : '#28a745'}">
+${currentResult.hypertension?.risk || '无法评估'}
+</span>
+</div>
+<div style="height: 4px; background: #f0d5b0; border-radius: 2px;">
+<div style="height: 100%; width: ${(currentResult.hypertension?.confidence * 100) || 0}%; background: #c97b5d; border-radius: 2px;"></div>
+</div>
+<div style="font-size: 0.8em; color: #b37b5a; margin-top: 2px;">置信度 ${(currentResult.hypertension?.confidence * 100).toFixed(1) || 0}%</div>
+</div>
+<div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+<span>🩸 糖尿病风险</span>
+<span style="font-weight: 600; color: ${currentResult.diabetes?.risk === '高风险' ? '#d9534f' : '#28a745'}">
+${currentResult.diabetes?.risk || '无法评估'}
+</span>
+</div>
+<div style="height: 4px; background: #f0d5b0; border-radius: 2px;">
+<div style="height: 100%; width: ${(currentResult.diabetes?.confidence * 100) || 0}%; background: #c97b5d; border-radius: 2px;"></div>
+</div>
+<div style="font-size: 0.8em; color: #b37b5a; margin-top: 2px;">置信度 ${(currentResult.diabetes?.confidence * 100).toFixed(1) || 0}%</div>
+</div>
+</div>
+<!-- 🔹 新增：置信度对比图表（评估结果与输入数据之间） -->
+<div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed #e5c9a8;">
+<div style="font-weight: 600; color: #a5673f; margin-bottom: 10px; font-size: 0.95em;">📈 置信度对比</div>
+<div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85em;">
+<span style="width: 70px; color: #8b5a3c;">❤️ 高血压</span>
+<div style="flex: 1; height: 12px; background: #f0d5b0; border-radius: 6px; overflow: hidden; margin: 0 10px;">
+<div style="height: 100%; width: ${htPercent}%; background: ${htColor}; border-radius: 6px;"></div>
+</div>
+<span style="width: 45px; text-align: right; font-weight: 600; color: ${htColor};">${htPercent}%</span>
+</div>
+<div style="display: flex; align-items: center; font-size: 0.85em;">
+<span style="width: 70px; color: #8b5a3c;">🩸 糖尿病</span>
+<div style="flex: 1; height: 12px; background: #f0d5b0; border-radius: 6px; overflow: hidden; margin: 0 10px;">
+<div style="height: 100%; width: ${dbPercent}%; background: ${dbColor}; border-radius: 6px;"></div>
+</div>
+<span style="width: 45px; text-align: right; font-weight: 600; color: ${dbColor};">${dbPercent}%</span>
+</div>
+<div style="font-size: 0.75em; color: #b37b5a; margin-top: 8px; text-align: center;">
+💡 置信度越高，模型评估把握越大
+</div>
+</div>
+<div style="margin-bottom: 15px;">
+<div style="font-weight: 600; color: #a5673f; margin-bottom: 8px;">📝 输入数据</div>
+<div style="font-size: 0.9em; color: #8b5a3c;">
+${inputDataHTML}
+</div>
+</div>
+<div style="padding: 12px; background: #f0d5b0; border-radius: 12px; font-size: 0.85em; color: #8b5a3c;">
+💗 温柔守护您的健康 · 建议定期监测，咨询专业医生
+</div>
+<div style="font-size: 0.7em; color: #b37b5a; margin-top: 10px; text-align: center;">
+* 本报告仅供参考，不作为医疗诊断依据
+</div>
+</div>
+`;
+            document.getElementById('report-content').innerHTML = reportHTML;
+            document.getElementById('report-modal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('report-modal').classList.remove('show');
+        }
+        function saveReport() {
+            const reportElement = document.getElementById('report-content').firstElementChild;
+            html2canvas(reportElement, {
+                scale: 2,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `健康报告_${new Date().toISOString().slice(0, 10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+        // 窗口缩放时重绘图表
+        window.addEventListener('resize', () => {
+            const chart = document.getElementById('confidence-chart');
+            if (chart && chart.data) {
+                Plotly.Plots.resize(chart);
+            }
+        });
+        // 初始化
+        selectGender('male');
+        updateCompleteness();
+    </script>
+</body>
+
+</html>

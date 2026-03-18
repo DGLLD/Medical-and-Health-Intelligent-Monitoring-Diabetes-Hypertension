@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+joblib
+flask
+flask-cors
+mysql-connector-python
+plotly

@@ -1,0 +1,390 @@
+/* === 基础样式重置 === */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body { 
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+    background: #f5f7fa; 
+    color: #333;
+    line-height: 1.6;
+}
+
+/* === 🔑 【核心修改】登录/注册卡片居中布局 === */
+.login-card, .register-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    width: 100%;                       /* ✅ 占满父容器宽度 */
+    max-width: 420px;                  /* ✅ 最大宽度限制 */
+    padding: 40px 35px;                /* ✅ 卡片区内边距 */
+    margin: 80px auto;                 /* 🔑 上下留白 + 自动左右居中 */
+}
+
+/* === 🔑 【核心修改】登录/注册页面主体居中 === */
+.page-main {
+    flex: 1;                           /* ✅ 占据剩余空间 */
+    display: flex;                     /* ✅ Flexbox布局 */
+    align-items: center;               /* ✅ 垂直居中 */
+    justify-content: center;           /* 🔑 水平居中（关键）*/
+    min-height: calc(100vh - 60px);    /* ✅ 最小高度 = 视口 - 导航栏 */
+    padding: 60px 20px 50px;           /* ✅ 上下左右统一内边距 */
+}
+
+/* === 🔑 【核心修改】导航栏左右留白 === */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;                   /* 🔑 左右留白（原40px保持不变） */
+    z-index: 1000;
+}
+
+.logo { 
+    font-size: 20px; 
+    font-weight: bold; 
+    color: #1890ff; 
+    cursor: pointer;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+}
+
+.back-link:hover { color: #1890ff; }
+
+.user-info {
+    margin-right: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.nav-btn {
+    padding: 10px 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.login-btn {
+    background: #fff;
+    color: #1890ff;
+    border: 1px solid #1890ff;
+}
+
+.login-btn:hover {
+    background: #e6f7ff;
+    transform: translateY(-1px);
+}
+
+.register-btn {
+    background: #1890ff;
+    color: #fff;
+    border: 1px solid #1890ff;
+}
+
+.register-btn:hover {
+    background: #40a9ff;
+    transform: translateY(-1px);
+}
+
+/* === 主内容容器 === */
+.container {
+    max-width: 1200px;
+    margin: 100px auto 50px;           /* 🔑 添加 left/right auto 实现居中 */
+    padding: 0 20px;
+}
+
+/* === 首页Hero区域 === */
+.hero-section {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.hero-title {
+    font-size: 36px;
+    color: #1890ff;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.hero-desc {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto 40px;               /* 🔑 auto实现左右居中 */
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #1890ff, #40a9ff);
+    color: #fff !important;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    animation: pulse 2s infinite;
+}
+
+.cta-button:hover {
+    box-shadow: 0 6px 25px rgba(24, 144, 255, 0.4);
+    transform: scale(1.05);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3); }
+    50% { box-shadow: 0 4px 20px rgba(24, 144, 255, 0.5); }
+    100% { box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3); }
+}
+
+/* === 功能展示图片区域 === */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 60px;
+}
+
+.image-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 500px;
+}
+
+.image-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.card-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid #f0f0f0;
+    display: block;
+}
+
+.image-caption {
+    padding: 15px;
+    font-size: 14px;
+    color: #555;
+    background: #fafafa;
+}
+
+/* === 表单元素样式 === */
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15);
+}
+
+.form-input::placeholder {
+    color: #bfbfbf;
+}
+
+.input-error {
+    border-color: #ff4d4f !important;
+}
+
+.message-box {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    display: none;
+}
+
+.error-message {
+    background: #fff1f0;
+    border: 1px solid #ffccc7;
+    color: #cf1322;
+    display: none;
+}
+
+.success-message {
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    color: #52c41a;
+    display: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.submit-btn:hover {
+    background: #40a9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.bottom-links {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.bottom-links a {
+    color: #1890ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+.bottom-links a:hover { opacity: 0.8; }
+
+/* === 核心功能介绍区 === */
+.features-section {
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.features-title {
+    font-size: 24px;
+    color: #1890ff;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 25px 20px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: #f0f7ff;
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 15px;              /* 🔑 auto实现图标居中 */
+    background: #e6f7ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #1890ff;
+}
+
+.feature-text {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.feature-subtext {
+    font-size: 13px;
+    color: #999;
+}
+
+/* === 底部版权区 === */
+footer {
+    text-align: center;
+    padding: 40px 0;
+    color: #999;
+    font-size: 13px;
+    border-top: 1px solid #eee;
+    margin-top: 60px;
+}
+
+/* === 服务页面内容容器 === */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;                    /* 🔑 居中 */
+    padding: 20px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 100px;
+}
+
+/* === 移动端适配 === */
+@media (max-width: 768px) {
+    .navbar { padding: 0 20px; }
+    .hero-title { font-size: 28px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .image-gallery { grid-template-columns: 1fr; }
+    .cta-button { width: calc(100% - 20px); }
+    .page-main { padding: 80px 15px 40px; }
+    .login-card, .register-card { 
+        padding: 35px 25px; 
+        max-width: 95%;                /* 🔑 手机端调整最大宽度 */
+        margin: 60px 10px;             /* 🔑 手机端调整margin */
+    }
+    .container { margin: 80px auto 30px; }
+}
