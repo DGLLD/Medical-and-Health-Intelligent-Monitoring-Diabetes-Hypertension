@@ -1,8 +1,9 @@
+flask
+flask-cors
+pymysql
 pandas
 numpy
 scikit-learn
 joblib
-flask
-flask-cors
-mysql-connector-python
 plotly
+cryptography

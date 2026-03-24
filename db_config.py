@@ -2,9 +2,6 @@
 """
 📋 文件名称: db_config.py
 🎯 功能描述: 数据库连接与用户操作模块
-📅 创建时间: 2024年
-✏️ 作者说明: 封装MySQL连接和用户CRUD操作
-🔌 预留接口: add_user, verify_user, user_exists
 """
 
 import pymysql
@@ -17,35 +14,25 @@ class DatabaseConfig:
     🔧 数据库配置类 - 管理MySQL连接和用户操作
     """
     
-    def __init__(self, host='127.0.0.1', port=3306, user='root', 
-                 password='111111', database='test_db', charset='utf8mb4'):#此处我修改了密码 后续换回即可
+    def __init__(self, host=None, port=None, user=None, 
+                 password=None, database=None, charset='utf8mb4'):
         """
         【构造方法】初始化数据库连接参数
-        
-        Args:
-            host (str): 数据库主机地址
-            port (int): 数据库端口号
-            user (str): 数据库用户名
-            password (str): 数据库密码
-            database (str): 数据库名称
-            charset (str): 字符集编码
+        支持环境变量覆盖，便于Docker部署
         """
         self.config = {
-            'host': host,
-            'port': port,
-            'user': user,
-            'password': password,
-            'database': database,
+            'host': host or os.getenv('DB_HOST', '127.0.0.1'),
+            'port': port or int(os.getenv('DB_PORT', 3306)),
+            'user': user or os.getenv('DB_USER', 'root'),
+            'password': password or os.getenv('DB_PASSWORD', '111111'),
+            'database': database or os.getenv('DB_NAME', 'test_db'),
             'charset': charset,
-            'cursorclass': pymysql.cursors.DictCursor  # 返回字典类型游标
+            'cursorclass': pymysql.cursors.DictCursor
         }
     
     def get_connection(self):
         """
         🔗 获取数据库连接对象
-        
-        Returns:
-            pymysql.Connection: 数据库连接对象
         """
         conn = pymysql.connect(**self.config)
         return conn
@@ -53,24 +40,16 @@ class DatabaseConfig:
     def create_database_if_not_exists(self, db_name=None):
         """
         🗂️ 检查并创建数据库（如果不存在）
-        
-        Args:
-            db_name (str): 数据库名称
-        
-        Returns:
-            bool: 是否成功创建
         """
         db_name = db_name or self.config['database']
         conn = None
         cursor = None
         
         try:
-            # 不指定数据库进行连接
             temp_config = {k: v for k, v in self.config.items() if k != 'database'}
             conn = pymysql.connect(**temp_config)
             cursor = conn.cursor()
             
-            # 检查数据库是否存在
             cursor.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s;", (db_name,))
             result = cursor.fetchone()
             
@@ -94,13 +73,6 @@ class DatabaseConfig:
     def create_user_table(self):
         """
         👤 创建用户数据表 users
-        
-        【表结构】
-        - id: INT AUTO_INCREMENT PRIMARY KEY
-        - username: VARCHAR(50) UNIQUE 用户账号（3-20字符）
-        - password: VARCHAR(128) 密码哈希值
-        - created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        - updated_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE
         """
         conn = None
         cursor = None
@@ -112,7 +84,7 @@ class DatabaseConfig:
             create_table_sql = """
             CREATE TABLE IF NOT EXISTS `{}`.`users` (
                 `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
-                `username` VARCHAR(50) NOT NULL UNIQUE COMMENT '用户账号（3-20字符）',
+                `username` VARCHAR(50) NOT NULL UNIQUE COMMENT '用户账号',
                 `password` VARCHAR(128) NOT NULL COMMENT '密码哈希值',
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -120,7 +92,6 @@ class DatabaseConfig:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """.format(self.config['database'])
             
-            print(f"📝 执行建表SQL：{create_table_sql[:100]}...")
             cursor.execute(create_table_sql)
             conn.commit()
             print("✅ 用户表 'users' 创建成功")
@@ -128,7 +99,8 @@ class DatabaseConfig:
             
         except Exception as e:
             print(f"❌ 创建用户表失败：{e}")
-            conn.rollback()
+            if conn:
+                conn.rollback()
             return False
         finally:
             if cursor: cursor.close()
@@ -137,12 +109,6 @@ class DatabaseConfig:
     def user_exists(self, username):
         """
         ✅ 检查账号是否存在
-        
-        Args:
-            username (str): 要检查的用户名
-        
-        Returns:
-            bool: True表示存在，False表示不存在
         """
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -161,13 +127,6 @@ class DatabaseConfig:
     def add_user(self, username, hashed_password):
         """
         ➕ 添加新用户到数据库
-        
-        Args:
-            username (str): 用户账号
-            hashed_password (str): 加密后的密码哈希值
-        
-        Returns:
-            tuple: (success:bool, message:str, user_id:int)
         """
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -195,13 +154,6 @@ class DatabaseConfig:
     def verify_user(self, username, plain_password):
         """
         🔐 验证用户登录
-        
-        Args:
-            username (str): 用户账号
-            plain_password (str): 明文密码（需在后端解密比对）
-        
-        Returns:
-            dict: {'success': bool, 'user_id': int, 'message': str}
         """
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -214,10 +166,9 @@ class DatabaseConfig:
             if not user:
                 return {'success': False, 'user_id': None, 'message': '账号不存在'}
             
-            # 🔴【注意】生产环境使用 bcrypt.checkpw() 或 werkzeug.security.check_password_hash()
             stored_hash = user['password']
             
-            if stored_hash == plain_password:  # 测试阶段临时方案
+            if stored_hash == plain_password:
                 print(f"✅ 用户验证成功：{username}")
                 return {'success': True, 'user_id': user['id'], 'message': '登录成功'}
             else:
@@ -230,35 +181,7 @@ class DatabaseConfig:
             conn.close()
 
 
-# ==================== 独立测试函数 ====================
-
-def test_mysql_connection():
-    """
-    🔬 测试MySQL连接是否正常
-    """
-    config = DatabaseConfig()
-    
-    try:
-        print("="*60)
-        print("🚀 开始测试数据库连接...")
-        
-        config.create_database_if_not_exists()
-        config.create_user_table()
-        
-        print("\n📝 测试添加用户...")
-        success, msg, uid = config.add_user("test_user", "123456")
-        print(f"   结果：{msg}, ID={uid}")
-        
-        print("\n🔍 测试用户验证...")
-        result = config.verify_user("test_user", "123456")
-        print(f"   结果：{result}")
-        
-        print("\n✅ 全部测试通过！")
-        print("="*60)
-        
-    except Exception as e:
-        print(f"\n❌ 测试失败：{e}")
-
-
 if __name__ == "__main__":
-    test_mysql_connection()
+    config = DatabaseConfig()
+    config.create_database_if_not_exists()
+    config.create_user_table()
