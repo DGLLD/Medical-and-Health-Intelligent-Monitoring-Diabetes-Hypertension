@@ -1,0 +1,56 @@
+# ============================================
+# 社交媒体热点词分析项目 - .gitignore
+# ============================================
+
+# 数据库文件
+database/*.db
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
+
+# 输出目录（运行时生成）
+output/
+output/rankings/
+output/wordclouds/
+output/sentiment/
+
+# 清洗后的数据（可重新生成）
+data/processed/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量
+.env
+config.local.py
+
+# 测试临时文件
+dbcheck/
+*.csv
+
+# 临时文件
+*.tmp
+*.bak
