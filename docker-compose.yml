@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -35,6 +33,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-111111}
       DB_NAME: ${DB_NAME:-test_db}
       FLASK_ENV: production
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
     volumes:
       - ./models:/app/models
       - ./data:/app/data

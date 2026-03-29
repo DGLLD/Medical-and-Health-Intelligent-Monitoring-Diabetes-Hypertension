@@ -12,6 +12,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.predict import predict_all_with_available_data
+from src.llm_analyzer import generate_health_report
 from db_config import DatabaseConfig
 
 app = Flask(__name__)
@@ -123,7 +124,12 @@ def predict():
         data = request.json
         health_data = data.get('health_data', {})
         
+        # 原有预测逻辑
         result = predict_all_with_available_data(health_data)
+        
+        # 新增：调用大模型生成健康报告
+        health_report = generate_health_report(health_data, result)
+        result['health_report'] = health_report
         
         return jsonify({'success': True, 'data': result})
     except Exception as e:
@@ -145,6 +151,13 @@ if __name__ == '__main__':
     print("=" * 60)
     print("🚀 医疗风险评估平台 - Flask服务器启动...")
     print("=" * 60)
+    
+    # 检查大模型API密钥配置
+    api_key = os.getenv('DASHSCOPE_API_KEY', '')
+    if api_key:
+        print("✅ AI健康顾问服务已启用（千问大模型）")
+    else:
+        print("⚠️ AI健康顾问服务未配置，请设置 DASHSCOPE_API_KEY 环境变量")
     
     try:
         db.create_database_if_not_exists()

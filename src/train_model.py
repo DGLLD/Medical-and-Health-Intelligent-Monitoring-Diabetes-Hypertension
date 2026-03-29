@@ -27,7 +27,7 @@ def clean_hypertension(df):
         (df['ap_hi'] > df['ap_lo']) &
         (df['weight'] >= 20) & (df['weight'] <= 200) &
         (df['height'] >= 100) & (df['height'] <= 250) &
-        (df['age'] >= 0) & (df['age'] <= 36500)
+        (df['age'] >= 0) & (df['age'] <= 438001)        
     ]
     cleaned_len = len(df)
     print(f"高血压数据清洗: {original_len} → {cleaned_len} (删除 {original_len-cleaned_len} 行)")
